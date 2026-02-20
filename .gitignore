@@ -1,2 +1,4 @@
 sandbox/*
 __PYCACHE__/*
+chroma_db/*
+rag/*

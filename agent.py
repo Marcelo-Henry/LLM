@@ -1,26 +1,45 @@
 # agent.py
 from openai import OpenAI
 import json
+from rag import RAG
 
 BASE_URL = "http://127.0.0.1:1234/v1"
 MODEL_NAME = "tanto_faz"
 MAX_HISTORY = 20  # Número máximo de mensagens no histórico
 
 SYSTEM_PROMPT = """Respond with JSON only. Format: {"action": "ACTION", "path": "FILE", "content": "TEXT"}
-Actions: list_files, read_file, write_file, edit_file, delete_file, shell, respond
+Actions: list_files, read_file, write_file, edit_file, delete_file, shell, respond, whatsapp, add_to_rag
 
 You can chain multiple actions by returning a JSON array:
-[{"action": "write_file", "path": "test.txt", "content": "hello"}, {"action": "read_file", "path": "test.txt"}]"""
+[{"action": "write_file", "path": "test.txt", "content": "hello"}, {"action": "read_file", "path": "test.txt"}]
+
+add_to_rag: Add knowledge to RAG. Use "path" for files or "content" for direct text.
+
+IMPORTANTE: Quando receber contexto do RAG, responda APENAS com base nas informações fornecidas. 
+NÃO invente, NÃO suponha, NÃO adicione informações que não estejam no contexto.
+Se a informação não estiver no contexto, diga claramente que não encontrou."""
 
 class Agent:
-    def __init__(self):
+    def __init__(self, use_rag=False):
         self.client = OpenAI(
             base_url=BASE_URL,
             api_key="lm-studio"
         )
         self.history = []
+        self.use_rag = use_rag
+        self.rag = RAG() if use_rag else None
 
     def think(self, user_input: str) -> dict:
+        # Buscar contexto relevante se RAG estiver ativado
+        context = ""
+        if self.use_rag and self.rag:
+            context = self.rag.search(user_input)
+            if context:
+                print(f"🔍 RAG: Contexto encontrado ({len(context)} caracteres)")
+                user_input = f"Context:\n{context}\n\nQuestion: {user_input}"
+            else:
+                print("🔍 RAG: Nenhum contexto relevante encontrado")
+        
         # Adiciona mensagem do usuário ao histórico
         self.history.append({"role": "user", "content": user_input})
         
