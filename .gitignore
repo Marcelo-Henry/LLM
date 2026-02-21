@@ -3,3 +3,5 @@ __pycache__/*
 *.txt
 prompt
 .kiro/
+chroma_db/*
+rag/*
