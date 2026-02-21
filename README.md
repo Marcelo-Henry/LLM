@@ -33,20 +33,25 @@ python3 main.py
 ### 🔄 Sistema de Undo
 - Snapshots automáticos antes de operações destrutivas
 - `/undo` para reverter última ação
-- Histórico completo de operações
-- Restauração segura de arquivos
+- Histórico completo de operações em `.undo_history/`
+- Restauração segura de arquivos deletados ou modificados
 
 ### 🧠 Planejamento Multi-Step
 - Detecção automática de tarefas complexas
 - Preview do plano antes da execução
 - Confirmação interativa (y/n)
-- Evita ações acidentais
+- Evita ações acidentais em operações em lote
 
 ### 📊 Gerenciamento de Contexto
 - Compressão inteligente de histórico
 - Truncamento de outputs longos
 - Evita overflow de context window
 - Mantém informações essenciais
+- Limite de 20 mensagens no histórico
+
+### ⚡ Comandos Ocultos
+- `!comando` - Executa comandos shell diretos (fora da sandbox, timeout 30s)
+- `clear` - Limpa a tela sem afetar o histórico do agente
 
 ## 🛠️ Tools Disponíveis
 
@@ -58,7 +63,6 @@ O agente possui acesso às seguintes ferramentas:
 - **edit_file** - Editar arquivos existentes
 - **delete_file** - Deletar arquivos
 - **shell** - Executar comandos shell (timeout 10s)
-- **add_to_rag** - Adicionar conhecimento ao RAG
 
 Todas as operações são executadas dentro da pasta `./sandbox` por segurança.
 
@@ -87,24 +91,39 @@ Sistema de memória de longo prazo com lazy loading - só carrega quando necess�
 
 ## 💡 Exemplos de Uso
 
+### Conversação Natural
 ```
 > crie um arquivo hello.py que imprime olá mundo
 > liste os arquivos
 > leia o arquivo hello.py
 > execute o comando python hello.py
 > delete o arquivo hello.py
-# Caso queira testar algo mais complexo:
-> Eu tenho 5 arquivos, delete apenas os que dizem ser não importantes.
 ```
 
-**Dica:** Use `/help` para ver mais exemplos e comandos disponíveis.
+### Tarefas Complexas
+```
+> Eu tenho 5 arquivos, delete apenas os que dizem ser não importantes
+> Analise todos os arquivos .py e adicione docstrings onde faltam
+> Refatore o código para seguir PEP8
+```
 
-Com RAG habilitado:
+### Comandos Diretos (Ocultos)
+```
+# Eles são apenas exemplos:
+> !ls -la                 # Executa comando no terminal (fora da sandbox)
+> !git status             # Qualquer comando shell
+> !python script.py       # Executa scripts
+> clear                   # Limpa a tela (mantém histórico)
+```
+
+### Com RAG Habilitado
 ```
 > /rag enable
 > /rag add file:docs/*.txt
 > Do que você sabe com o RAG?
 ```
+
+**Dica:** Use `/help` para ver mais exemplos e comandos disponíveis.
 
 ## ⚙️ Configuração
 

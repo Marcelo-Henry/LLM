@@ -1,5 +1,7 @@
 # main.py
 import sys
+import os
+import subprocess
 from utils import title
 title("llm")
 from agent import Agent, Planner
@@ -45,6 +47,27 @@ while True:
 
     if user_input.lower() in ["/quit"]:
         break
+    
+    # Comando direto no terminal (oculto)
+    if user_input.startswith("!"):
+        cmd = user_input[1:].strip()
+        if cmd:
+            try:
+                result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=120)
+                if result.stdout:
+                    print(result.stdout)
+                if result.stderr:
+                    print(f"\033[31m{result.stderr}\033[0m", end="")
+            except subprocess.TimeoutExpired:
+                print("❌ Comando excedeu timeout de 2min\n")
+            except Exception as e:
+                print(f"❌ Erro: {e}\n")
+        continue
+    
+    # Comando Clear (oculto)
+    if user_input.lower() == "clear":
+        os.system('clear' if os.name != 'nt' else 'cls')
+        continue
     
     # Comando Model
     if user_input in ["/model"]:
