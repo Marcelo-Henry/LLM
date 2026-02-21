@@ -73,6 +73,8 @@ Sistema de memória de longo prazo com lazy loading - só carrega quando necess�
 > leia o arquivo hello.py
 > execute o comando python hello.py
 > delete o arquivo hello.py
+# Caso queira testar algo mais complexo:
+> Eu tenho 5 arquivos, delete apenas os que dizem ser não importantes.
 ```
 
 **Dica:** Use `/help` para ver mais exemplos e comandos disponíveis.
@@ -81,7 +83,7 @@ Com RAG habilitado:
 ```
 > /rag enable
 > /rag add file:docs/*.txt
-> qual é o preço do curso?
+> Do que você sabe com o RAG?
 ```
 
 ## ⚙️ Configuração
@@ -97,9 +99,7 @@ Com RAG habilitado:
 ## 📦 Dependências
 
 ```
-openai
-sentence-transformers  # Apenas se usar RAG
-chromadb              # Apenas se usar RAG
+As dependências necessárias estão em requirements.txt
 ```
 
 ## 🤝 Contribuindo
