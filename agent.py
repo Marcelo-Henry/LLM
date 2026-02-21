@@ -1,7 +1,6 @@
 # agent.py
 from openai import OpenAI
 import json
-from rag import RAG
 
 BASE_URL = "http://192.168.0.103:1234/v1"
 MODEL_NAME = "tanto_faz"
@@ -115,7 +114,8 @@ Assistant: {"action": "write_file", "path": "app.py", "content": "name = input('
 User: edit app.py to add greeting
 Assistant: {"action": "edit_file", "path": "app.py", "content": "name = input('Your name: ')\\nprint(f'Hello {name}!')\\nprint(f'Length: {len(name)}')"}
 
-REMEMBER: Use \\n for newlines, NEVER use triple quotes!"""
+REMEMBER: Use \\n for newlines, NEVER use triple quotes!
+
 You can chain multiple actions by returning a JSON array:
 [{"action": "write_file", "path": "test.txt", "content": "hello"}, {"action": "read_file", "path": "test.txt"}]
 
@@ -133,7 +133,7 @@ class Agent:
         )
         self.history = []
         self.use_rag = use_rag
-        self.rag = RAG() if use_rag else None
+        self.rag = None  # RAG será injetado externamente quando habilitado
 
     def think(self, user_input: str, action_result: str = None) -> dict:
         # Buscar contexto relevante se RAG estiver ativado
@@ -221,10 +221,6 @@ class Agent:
             try:
                 commands.append(json.loads(block))
             except json.JSONDecodeError:
-                # Fix: Remove triple quotes e corrige escapes
-                if '"""' in block:
-                    block = block.replace('"""', '')
-                
                 # Fix: Corrige barras invertidas mal escapadas (\ seguido de espaço/newline)
                 block = re.sub(r'\\\s+', '', block)
                 
