@@ -1,6 +1,8 @@
-# LLM
+<p align="center">
+    <img src="LLM.png" alt="LLM" width="300">
+</p>
 
-**Onde LLMs Locais ganham mãos para trabalhar com arquivos e conhecimento.**
+<strong>Onde LLMs Locais ganham mãos para trabalhar com arquivos e conhecimento.</strong>
 
 Um agente autônomo que permite sua LLM local (LM Studio/Ollama) executar ações reais no sistema de arquivos, com sistema RAG opcional para memória de longo prazo.
 
