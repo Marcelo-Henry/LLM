@@ -2,3 +2,5 @@ sandbox/*
 __pycache__/*
 *.txt
 prompt
+chroma_db/*
+rag/*
