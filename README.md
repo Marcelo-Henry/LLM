@@ -1,4 +1,4 @@
-# Tools_LLM
+# LLM
 
 **Onde LLMs Locais ganham mãos para trabalhar com arquivos e conhecimento.**
 
@@ -8,13 +8,21 @@ Um agente autônomo que permite sua LLM local (LM Studio/Ollama) executar açõe
 
 ```bash
 # Instalar dependências
-pip install -r requirements.txt
+pip install -r requirements.txt --break-system-packages
+
+# Ou
+
+pip3 install -r requirements.txt --break-system-packages
 
 # Configurar URL do servidor LLM
 # Edite agent.py linha 6: BASE_URL = "http://localhost:1234/v1"
 
 # Executar
 python main.py
+
+# Ou
+
+python3 main.py
 
 # Ver ajuda
 > /help
