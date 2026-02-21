@@ -1,9 +1,9 @@
 sandbox/*
-__pycache__/*
+__pycache__/
 *.txt
 prompt
 .kiro/
-chroma_db/*
+chroma_db/
 rag/*
 
 # Arquivos específicos do usuário

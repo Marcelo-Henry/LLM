@@ -1,3 +1,4 @@
 openai
 sentence-transformers
 chromadb
+prompt_toolkit

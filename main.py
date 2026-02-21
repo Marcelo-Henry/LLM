@@ -1,12 +1,12 @@
 # main.py
 from agent import Agent
 from tools import execute
-from utils import spinner, typewriter
+from utils import spinner, typewriter, rag_spinner
+from autocomplete import get_input
 import json
 import sys
 import threading
 import time
-import readline
 
 agent = Agent(use_rag=False)
 rag = None  # RAG com lazy loading
@@ -20,7 +20,6 @@ def ensure_rag():
         import os
         import warnings
         import logging
-        from multiprocessing import Process, Queue
         
         os.environ['TOKENIZERS_PARALLELISM'] = 'false'
         os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
@@ -33,7 +32,7 @@ def ensure_rag():
         
         # Spinner em thread separada
         stop_event = threading.Event()
-        spinner_thread = threading.Thread(target=lambda: rag_loading_spinner(stop_event))
+        spinner_thread = threading.Thread(target=rag_spinner, args=(stop_event,))
         spinner_thread.daemon = True
         spinner_thread.start()
         
@@ -42,34 +41,21 @@ def ensure_rag():
         
         stop_event.set()
         spinner_thread.join()
-        print("\r✅ RAG carregado!                                    \n")
+        print("✅ RAG carregado!\n")
     return rag
 
-def rag_loading_spinner(stop_event):
-    """Spinner animado para carregamento do RAG"""
-    frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-    idx = 0
-    while not stop_event.is_set():
-        sys.stdout.write(f"\r{frames[idx]} Carregando RAG...")
-        sys.stdout.flush()
-        idx = (idx + 1) % len(frames)
-        time.sleep(0.08)
-    sys.stdout.write("\r" + " " * 40 + "\r")
-    sys.stdout.flush()
-
-time.sleep(0.5)
 print("\033[94m" + """
-             ⢀⣴⣶⣶⣦⡀                ⢀⣴⣶⣶⣦⡀                  ⢀⣴⣶⣶⣦⡀         ⢀⣴⣶⣶⣦⡀
-            ⢰⣿⠋⠁⠈⠙⣿⡆              ⢰⣿⠋⠁⠈⠙⣿⡆                ⢰⣿⠋⠁  ⣷⡀       ⢀⣾  ⠈⠙⣿⡆
-            ⢸⣿     ⣿⡇             ⢸⣿     ⣿⡇               ⢸⣿     ⠹⣷⡀    ⣴⡿      ⣿⡇
-            ⢸⣿     ⣿⡇             ⢸⣿     ⣿⡇               ⢸⣿      ⠹⣷⡀   ⡿       ⣿⡇
-            ⢸⣿     ⣿⡇             ⢸⣿     ⣿⡇               ⢸⣿  ⣿⡇⣷  ⠹⣷⣦⣾⠏ ⢀⣾⣿⡇   ⣿⡇
-            ⢸⣿     ⣿⡇             ⢸⣿     ⣿⡇               ⢸⣿  ⣿⡇⣷⡀      ⣴⡿ ⣿⡇   ⣿⡇ 
-            ⢸⣿     ⣿⡇             ⢸⣿     ⣿⡇               ⢸⣿  ⣿⡇ ⠹⣷⡀   ⡿   ⣿⡇   ⣿⡇
-            ⢸⣿     ⣿⣄⡀            ⢸⣿     ⣿⣄⡀              ⢸⣿  ⣿⡇  ⠹⣷⣦⣾⠏    ⣿⡇   ⣿⡇
-            ⢸⣿     ⠈⠻⠿⠿⠿⠿⠿⠿⣷⡀     ⢸⣿     ⠈⠻⠿⠿⠿⠿⠿⠿⣷⡀       ⢸⣿  ⣿⡇            ⣿⡇  ⣿⡇
-            ⠸⣿⣄⡀            ⣿⡇    ⠸⣿⣄⡀           ⣿⡇       ⠸⣿⣄ ⣿⡇            ⣿⡇ ⣠⣿⠇
-             ⠈⠻⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠟⠁       ⠈⠻⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠟⠁         ⠈⠻⠿⠟⠁            ⠈⠻⣿⠟⠁
+                ⢀⣴⣶⣶⣦⡀            ⢀⣴⣶⣶⣦⡀             ⢀⣴⣶⣶⣦⡀         ⢀⣴⣶⣶⣦⡀
+               ⢰⣿⠋⠁⠈⠙⣿⡆          ⢰⣿⠋⠁⠈⠙⣿⡆           ⢰⣿⠋⠁  ⣷⡀       ⢀⣾  ⠈⠙⣿⡆
+               ⢸⣿     ⣿⡇         ⢸⣿     ⣿⡇          ⢸⣿     ⠹⣷⡀    ⣴⡿      ⣿⡇
+               ⢸⣿     ⣿⡇         ⢸⣿     ⣿⡇          ⢸⣿      ⠹⣷⡀   ⡿       ⣿⡇
+               ⢸⣿     ⣿⡇         ⢸⣿     ⣿⡇          ⢸⣿  ⣿⡇⣷  ⠹⣷⣦⣾⠏ ⢀⣾⣿⡇   ⣿⡇
+               ⢸⣿     ⣿⡇         ⢸⣿     ⣿⡇          ⢸⣿  ⣿⡇⣷⡀      ⣴⡿ ⣿⡇   ⣿⡇ 
+               ⢸⣿     ⣿⡇         ⢸⣿     ⣿⡇          ⢸⣿  ⣿⡇ ⠹⣷⡀   ⡿   ⣿⡇   ⣿⡇
+               ⢸⣿     ⣿⣄⡀        ⢸⣿     ⣿⣄⡀         ⢸⣿  ⣿⡇  ⠹⣷⣦⣾⠏    ⣿⡇   ⣿⡇
+               ⢸⣿     ⠈⠻⠿⠿⠿⠿⠿⠿⣷⡀ ⢸⣿     ⠈⠻⠿⠿⠿⠿⠿⠿⣷⡀  ⢸⣿  ⣿⡇            ⣿⡇  ⣿⡇
+               ⠸⣿⣄⡀           ⣿⡇ ⠸⣿⣄⡀           ⣿⡇  ⠸⣿⣄ ⣿⡇            ⣿⡇ ⣠⣿⠇
+                ⠈⠻⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠟⠁   ⠈⠻⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠟⠁    ⠈⠻⠿⠟⠁            ⠈⠻⣿⠟⠁
 
 """ + "\033[0m")
 print("Hello! How can I help you today?\n")
@@ -77,17 +63,34 @@ print("Hello! How can I help you today?\n")
 print("Comandos disponíveis:")
 print("  /help      - Ver ajuda e exemplos")
 print("  /rag       - Sistema de conhecimento")
+print("  /model     - Ver modelo carregado no LM Studio")
 print("  /quit      - Sair")
 print("\nDigite um comando em linguagem natural\n")
 
 while True:
-    user_input = input("\033[94m> \033[0m")
+    try:
+        user_input = get_input("> ")
+    except (EOFError, KeyboardInterrupt):
+        break
 
-    if user_input.lower() in ["exit", "quit", "/bye", "/q", "/quit", ".exit", ".quit", ".q"]:
+    if user_input.lower() in ["/quit"]:
         break
     
+    # Comando Model
+    if user_input in ["/model"]:
+        try:
+            models = agent.client.models.list()
+            if models.data:
+                model = models.data[0]
+                print(f"\n🤖 Modelo carregado: {model.id}\n")
+            else:
+                print("\n⚠️ Nenhum modelo carregado no LM Studio\n")
+        except Exception as e:
+            print(f"\n❌ Erro ao conectar com LM Studio: {e}\n")
+        continue
+    
     # Comando Help
-    if user_input in ["/help", "help"]:
+    if user_input in ["/help"]:
         print("\n💬 Fale naturalmente com o agente:")
         print("  \"crie um arquivo hello.py que imprime olá\"")
         print("  \"liste os arquivos da pasta\"")
@@ -96,6 +99,7 @@ while True:
         print("  /rag       - Ver comandos disponíveis")
         print("\n⚙️ Outros comandos:")
         print("  /help      - Mostrar esta ajuda")
+        print("  /model     - Ver modelo carregado")
         print("  /quit      - Sair (/q, /exit, exit, quit)")
         print("\n💡 Dica: O agente executa ações automaticamente.")
         print("   Seja específico no que você quer!\n")

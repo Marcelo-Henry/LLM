@@ -1,6 +1,7 @@
 # tools.py
 import os
 import subprocess
+from diff_viewer import show_diff
 
 BASE_DIR = "./sandbox"
 
@@ -44,15 +45,41 @@ def execute(command: dict):
 
     if action == "write_file":
         target = safe_path(path)
+        
+        # Lê conteúdo antigo se existir
+        old_content = ""
+        if os.path.exists(target):
+            with open(target, "r", encoding="utf-8") as f:
+                old_content = f.read()
+        
+        new_content = command.get("content", "")
+        
+        # Mostra diff
+        show_diff(old_content, new_content, path, action)
+        
+        # Executa
         os.makedirs(os.path.dirname(target), exist_ok=True)
         with open(target, "w", encoding="utf-8") as f:
-            f.write(command.get("content", ""))
+            f.write(new_content)
         return "Arquivo criado"
 
     if action == "edit_file":
         target = safe_path(path)
+        
+        # Lê conteúdo antigo
+        old_content = ""
+        if os.path.exists(target):
+            with open(target, "r", encoding="utf-8") as f:
+                old_content = f.read()
+        
+        new_content = command.get("content", "")
+        
+        # Mostra diff
+        show_diff(old_content, new_content, path, action)
+        
+        # Executa
         with open(target, "w", encoding="utf-8") as f:
-            f.write(command.get("content", ""))
+            f.write(new_content)
         return "Arquivo editado"
 
     if action == "delete_file":

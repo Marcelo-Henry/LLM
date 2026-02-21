@@ -15,7 +15,7 @@ OR, IF YOU DONT NEED TO MAKE ANY FILES:
 {"action": "ACTION", "content": "TEXT"}
 
 Available actions:
-- list_files, read_file, write_file, edit_file, delete_file, shell, respond, whatsapp, add_to_rag
+- list_files, read_file, write_file, edit_file, delete_file, shell, respond
 
 Format: {"action": "ACTION", "path": "FILE", "content": "TEXT"}
 
@@ -118,8 +118,6 @@ REMEMBER: Use \\n for newlines, NEVER use triple quotes!
 
 You can chain multiple actions by returning a JSON array:
 [{"action": "write_file", "path": "test.txt", "content": "hello"}, {"action": "read_file", "path": "test.txt"}]
-
-add_to_rag: Add knowledge to RAG. Use "path" for files or "content" for direct text.
 
 IMPORTANTE: Quando receber contexto do RAG, responda APENAS com base nas informações fornecidas. 
 NÃO invente, NÃO suponha, NÃO adicione informações que não estejam no contexto.
