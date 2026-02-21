@@ -1,20 +1,15 @@
 # main.py
+from utils import spinner, typewriter, get_input, title
+title("llm")
 import sys
 import os
 import subprocess
-from utils import title
-title("llm")
 from agent import Agent, Planner
 from tools import execute, undo
-from utils import spinner, typewriter, get_input
 from rag import handle_rag_command, ensure_rag
 import json
 import threading
 import time
-
-agent = Agent(use_rag=False)
-rag = None
-rag_enabled = False
 
 print("\x1b[31m" + """
                 ⢀⣴⣶⣶⣦⡀            ⢀⣴⣶⣶⣦⡀             ⢀⣴⣶⣶⣦⡀         ⢀⣴⣶⣶⣦⡀
@@ -39,6 +34,12 @@ print("  /undo      - Desfazer última operação")
 print("  /quit      - Sair\n")
 
 print("Olá! Como posso lhe ajudar?\n")
+
+# Inicializa agente e título após banner
+agent = Agent(use_rag=False)
+rag = None
+rag_enabled = False
+
 while True:
     try:
         user_input = get_input("> ")

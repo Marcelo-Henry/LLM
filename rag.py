@@ -1,12 +1,13 @@
 # rag.py
-from sentence_transformers import SentenceTransformer
-import chromadb
 import glob
 import threading
-from utils import rag_spinner
 
 class RAG:
     def __init__(self, collection_name="knowledge_base"):
+        # Lazy imports - só carrega quando instanciar
+        from sentence_transformers import SentenceTransformer
+        import chromadb
+        
         self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
         self.client = chromadb.PersistentClient(path="./chroma_db")
         
@@ -52,6 +53,7 @@ def ensure_rag(rag):
         import os
         import warnings
         import logging
+        from utils import rag_spinner
         
         os.environ['TOKENIZERS_PARALLELISM'] = 'false'
         os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
@@ -172,6 +174,7 @@ def handle_rag_command(user_input, rag_enabled, rag, agent):
             return rag_enabled, rag
         
         rag = ensure_rag(rag)
+        import chromadb
         client = chromadb.PersistentClient(path="./chroma_db")
         client.delete_collection("knowledge_base")
         print("✅ RAG limpo!\n")
