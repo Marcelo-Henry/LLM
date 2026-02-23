@@ -14,9 +14,15 @@ or, If you don't have to create, edit, read or delete a file, just respond with:
 {"action": "ACTION", "content": "TEXT"}
 
 Available actions:
-- list_files, read_file, write_file, edit_file, delete_file, shell, respond
+- list_files, read_file, write_file, edit_file, delete_file, shell, run_python, search, respond
 
 Format: {"action": "ACTION", "path": "FILE", "content": "TEXT"}
+
+run_python: Execute Python code safely in subprocess
+  {"action": "run_python", "content": "print('hello')"}
+
+search: Search for pattern in files (like grep)
+  {"action": "search", "path": ".", "pattern": "def.*function"}
 
 Respond in Portuguese (Brazil).
 

@@ -57,6 +57,10 @@ python3 main.py
 - `!comando` - Executa comandos shell diretos (fora da sandbox, timeout 120s)
 - `clear` - Limpa a tela sem afetar o histórico do agente
 
+### ⚡ Comandos Ocultos
+- `!comando` - Executa comandos shell diretos (fora da sandbox, timeout 120s)
+- `clear` - Limpa a tela sem afetar o histórico do agente
+
 ## 🛠️ Tools Disponíveis
 
 O agente possui acesso às seguintes ferramentas:
@@ -67,6 +71,8 @@ O agente possui acesso às seguintes ferramentas:
 - **edit_file** - Editar arquivos existentes
 - **delete_file** - Deletar arquivos
 - **shell** - Executar comandos shell (timeout 10s)
+- **run_python** - Executar código Python isolado (timeout 30s)
+- **search** - Buscar padrões em arquivos (grep recursivo)
 
 Todas as operações são executadas dentro da pasta `./sandbox` por segurança.
 

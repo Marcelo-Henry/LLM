@@ -108,5 +108,46 @@ def execute(command: dict):
             return "Erro: Comando excedeu timeout de 10s"
         except Exception as e:
             return f"Erro ao executar: {str(e)}"
+    
+    if action == "run_python":
+        code = command.get("content", "")
+        try:
+            result = subprocess.run(
+                ["python3", "-c", code],
+                capture_output=True,
+                text=True,
+                cwd=safe_path("."),
+                timeout=30
+            )
+            output = result.stdout if result.stdout else result.stderr
+            return output if result.returncode == 0 else f"Erro (exit {result.returncode}):\n{result.stderr}"
+        except subprocess.TimeoutExpired:
+            return "Erro: Código excedeu timeout de 30s"
+        except Exception as e:
+            return f"Erro ao executar Python: {str(e)}"
+    
+    if action == "search":
+        pattern = command.get("pattern", "")
+        search_path = safe_path(path)
+        
+        if not pattern:
+            return "Erro: pattern não fornecido"
+        
+        try:
+            # Usa grep para busca eficiente
+            cmd = f"grep -rn '{pattern}' {search_path} 2>/dev/null || true"
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=10)
+            
+            if not result.stdout:
+                return f"Nenhum resultado encontrado para '{pattern}'"
+            
+            # Limita a 50 linhas
+            lines = result.stdout.strip().split('\n')
+            if len(lines) > 50:
+                return '\n'.join(lines[:50]) + f"\n... ({len(lines) - 50} resultados omitidos)"
+            
+            return result.stdout
+        except Exception as e:
+            return f"Erro na busca: {str(e)}"
 
     raise ValueError("Ação inválida")
